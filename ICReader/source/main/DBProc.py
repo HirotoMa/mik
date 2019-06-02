@@ -10,9 +10,13 @@ class DBOrder:
     self.direct = direct
     self.IDm = IDm
 
-class RECORD_DIRECTION():
-    ENTER_RECORD = 0
-    LEAVE_RECORD = 1
+class DEFINE_NUMS():
+    class RECORD_DIRECTION():     
+        ENTER_RECORD = 0
+        LEAVE_RECORD = 1
+    
+    class GPIO_NUM_DEF():
+        RED_LED_GPIO = 18
 
 def DBProc1():
     while True:
@@ -20,22 +24,38 @@ def DBProc1():
             item = DbQueue.get()
             print("receive")
             #import pdb; pdb.set_trace()
-            if item.direct == RECORD_DIRECTION.ENTER_RECORD:
+            if item.direct == DEFINE_NUMS.RECORD_DIRECTION.ENTER_RECORD:
                 WriteEnterRecord(item.IDm)
-            elif item.direct == RECORD_DIRECTION.LEAVE_RECORD:
+            elif item.direct == DEFINE_NUMS.RECORD_DIRECTION.LEAVE_RECORD:
                 WriteLeaveRecord(item.IDm)
                 
 # MySQLdbのインポート
 import MySQLdb
-def WriteEnterRecord(IDm):
+# モジュールのインポート
+import xml.etree.ElementTree as ET
+def ConnectDB():
+    # xmlファイルの読み込み
+    tree = ET.parse('MIKConfig.xml')
+
+    # hostの読み込み
+    dbhost = tree.find('DBHost').text
+    # ユーザーの読み込み
+    dbuser = tree.find('DBUser').text
+    # パスワードの読み込み
+    dbpass = tree.find('DBPassWd').text
+    # 使用DBの読み込み
+    dbuseDB = tree.find('UseDB').text
+
     # データベースへの接続とカーソルの生成
-    connection = MySQLdb.connect(
-        host='localhost',
-        user='root',
-        passwd='root',
-        db='MIK')
+    return MySQLdb.connect(
+        host=dbhost,
+        user=dbuser,
+        passwd=dbpass,
+        db=dbuseDB)
+
+def WriteEnterRecord(IDm):
+    connection = ConnectDB()
     cursor = connection.cursor()
-    
     # ここに実行したいコードを入力します
     stmt1 = "select user_id from m_user where user_IDm = %s"
     cursor.execute(stmt1, (IDm, ))
@@ -51,12 +71,7 @@ def WriteEnterRecord(IDm):
     connection.close()
 
 def WriteLeaveRecord(IDm): 
-    # データベースへの接続とカーソルの生成
-    connection = MySQLdb.connect(
-        host='localhost',
-        user='root',
-        passwd='root',
-        db='MIK')
+    connection = ConnectDB()
     cursor = connection.cursor()
     
     # ここに実行したいコードを入力します

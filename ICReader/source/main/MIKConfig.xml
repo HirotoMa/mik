@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<DBDef>
+	<DBHost>localhost</DBHost>
+	<DBUser>root</DBUser>
+	<DBPassWd>root</DBPassWd>
+	<UseDB>MIK</UseDB>
+</DBDef>

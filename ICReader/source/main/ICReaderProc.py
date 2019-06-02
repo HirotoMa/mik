@@ -14,21 +14,27 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/nfcpy')
 import nfc
 from DBProc import DbQueue
 from DBProc import DBOrder
+from DBProc import DEFINE_NUMS
+import RPi.GPIO as GPIO
 
 num_blocks = 20
 service_code = 0x090f
 
-count = 0
 def connected(tag):
   #import pdb; pdb.set_trace()
-  global count
+  global LED_GPIO
   strtag = str(tag)
-  import re
   result = strtag.find('ID=')
   strtag = strtag[result+3:result+19]
   print(strtag)
-  count = count + 1
-  DbQueue.put(DBOrder(count%2,strtag))
+  # 赤LED点灯中なら退場
+  import pdb; pdb.set_trace()
+  channel_is_on = GPIO.input(DEFINE_NUMS.GPIO_NUM_DEF.RED_LED_GPIO) 
+  if channel_is_on:
+      DbQueue.put(DBOrder(DEFINE_NUMS.RECORD_DIRECTION.LEAVE_RECORD,strtag))
+  else:
+      DbQueue.put(DBOrder(DEFINE_NUMS.RECORD_DIRECTION.ENTER_RECORD,strtag))
+  
 
 def ICReaderProc1():
     clf = nfc.ContactlessFrontend('usb')
