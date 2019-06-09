@@ -29,6 +29,7 @@ class DEFINE_NUMS():
         BUTTON_GPIO = 23
         SHUDOWN_SWITCH_GPIO = 17
         YELLOW_LED_GPIO = 26
+        GREEN_LED_GPIO = 19
 
 class GLOBAL_FLAG():
     def __init__(self):
@@ -66,6 +67,8 @@ def DBProc1():
 import MySQLdb
 # モジュールのインポート
 import xml.etree.ElementTree as ET
+
+from LCDProc import LCDQueue
 def ConnectDB():
     # xmlファイルの読み込み
     tree = ET.parse('MIKConfig.xml')
@@ -97,6 +100,9 @@ def WriteEnterRecord(IDm):
     stmt2 = "insert into t_enter (user_id)values(%s)"
     cursor.execute(stmt2, (rows, ))
 
+    # ユーザー名をLCDキューに入れる
+    LCDQueue.put(rows[0])
+
     # 保存を実行
     connection.commit()
 
@@ -114,6 +120,9 @@ def WriteLeaveRecord(IDm):
     rows = cursor.fetchone()
     stmt2 = "insert into t_leave (user_id)values(%s)"
     cursor.execute(stmt2, (rows, ))
+
+    # ユーザー名をLCDキューに入れる
+    LCDQueue.put(rows[0])
 
     # 保存を実行
     connection.commit()

@@ -6,21 +6,24 @@ import threading
 import ICReaderProc
 import DBProc
 import ButtonProc
+import LCDProc
 from DBProc import DEFINE_NUMS
 from DBProc import global_Flag
 from DBProc import itemThreadState
 from DBProc import DBThState
 from ICReaderProc import IcReaderThState
 from ButtonProc import ButttonThState
+from LCDProc import LCDThState
 import RPi.GPIO as GPIO
 
 
 icReaderTh = threading.Thread(target=ICReaderProc.ICReaderProc1)
 dbTh = threading.Thread(target=DBProc.DBProc1)
 butttonTh = threading.Thread(target=ButtonProc.ButtonProc1)
+lcdTh = threading.Thread(target=LCDProc.LCDMainProc)
 global ThArray
-ThArray = [icReaderTh,dbTh,butttonTh]
-ThStateArray = [IcReaderThState,DBThState,ButttonThState]
+ThArray = [icReaderTh,dbTh,butttonTh,lcdTh]
+ThStateArray = [IcReaderThState,DBThState,ButttonThState,LCDThState]
 
 def threadStart(tharray):
     for th in ThStateArray:
@@ -74,6 +77,8 @@ def threadProc():
                 alive_cnt = alive_cnt + 1
             if butttonTh.isAlive() and ButttonThState.wait_flag == False:
                 alive_cnt = alive_cnt + 1
+            if lcdTh.isAlive() and LCDThState.wait_flag == False:
+                alive_cnt = alive_cnt + 1
             if alive_cnt == 0:
                 break
 
@@ -93,7 +98,7 @@ if __name__ == "__main__":
     last_state = GPIO.input(DEFINE_NUMS.GPIO_NUM_DEF.SHUDOWN_SWITCH_GPIO)
     while True:
         # メインスレッドはスライドスイッチのポーリング処理を行う
-        time.sleep(0.5)
+        time.sleep(0.1)
         if last_state != GPIO.input(DEFINE_NUMS.GPIO_NUM_DEF.SHUDOWN_SWITCH_GPIO):
             threadProc()
             GPIO.setup(DEFINE_NUMS.GPIO_NUM_DEF.SHUDOWN_SWITCH_GPIO, GPIO.IN, pull_up_down=GPIO.PUD_UP)

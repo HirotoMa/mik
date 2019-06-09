@@ -25,7 +25,7 @@ service_code = 0x090f
 IcReaderThState = itemThreadState()
 
 def connected(tag):
-  import pdb; pdb.set_trace()
+  #import pdb; pdb.set_trace()
   global LED_GPIO
   strtag = str(tag)
   result = strtag.find('ID=')
@@ -52,18 +52,19 @@ TIME_wait = 3
 target_req_felica = nfc.clf.RemoteTarget("212F")
 def ICReaderProc1():
     clf = nfc.ContactlessFrontend('usb')
-    try:
-        while True:
-            if (global_Flag.getFlag() == True):
-                # setメソッドが呼び出されるまでスレッドを待機させる
-                IcReaderThState.wait_flag = True
-                clf.close()
-                print("connect closed!")
-                IcReaderThState.event.wait()
-                IcReaderThState.wait_flag = False
-                clf = nfc.ContactlessFrontend('usb')
+
+    while True:
+        if (global_Flag.getFlag() == True):
+            # setメソッドが呼び出されるまでスレッドを待機させる
+            clf.close()
+            IcReaderThState.wait_flag = True
+            print("connect closed!")
+            IcReaderThState.event.wait()
+            IcReaderThState.wait_flag = False
+            clf = nfc.ContactlessFrontend('usb')
+        else:
             # clf.sense( [リモートターゲット], [検索回数], [検索の間隔] )
-            target_res = clf.sense(target_req_felica, iterations=int(TIME_cycle//TIME_interval)+1 , interval=TIME_interval)
+            target_res = clf.sense(target_req_felica, iterations=1 , interval=TIME_interval)
             if not target_res is None:
                 # 読み取りを行う（読み取り完了かタイムアップまでブロックされる）
                 tag = nfc.tag.activate(clf, target_res)
@@ -72,9 +73,6 @@ def ICReaderProc1():
                 # 次の読み込みまで、ブロッキングを行う
                 time.sleep(5)
 
-    except KeyboardInterrupt:
-        clf.close()
-        print("connect closed!!!!!")
     clf.close()
     print("connect closed!")
 

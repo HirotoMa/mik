@@ -16,6 +16,8 @@ def ledproc():
 	GPIO.setup(DEFINE_NUMS.GPIO_NUM_DEF.RED_LED_GPIO, GPIO.OUT)
 	OnOffstate = not OnOffstate
 	GPIO.output(DEFINE_NUMS.GPIO_NUM_DEF.RED_LED_GPIO, OnOffstate)
+	GPIO.setup(DEFINE_NUMS.GPIO_NUM_DEF.GREEN_LED_GPIO, GPIO.OUT)
+	GPIO.output(DEFINE_NUMS.GPIO_NUM_DEF.GREEN_LED_GPIO, not OnOffstate)
 
 def ButtonProc2(channel):
     if channel == DEFINE_NUMS.GPIO_NUM_DEF.BUTTON_GPIO:
